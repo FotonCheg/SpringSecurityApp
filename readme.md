@@ -2,7 +2,7 @@
 Spring Framework, Spring Data, Hibernate, H2, Spring Security, H2, java script, jQuery, AJAX etc. JUnit, Spring-test for testing.
 
 ## Project on herokuapp.com:
-[dyachenkoytodolist.herokuapp.com](dyachenkoytodolist.herokuapp.com)
+[dyachenkoytodolist.herokuapp.com](https://dyachenkoytodolist.herokuapp.com/)
 
 ## Sql queries:
 /*-----------------------1*/
