@@ -1,0 +1,267 @@
+body {
+    height:920px;
+    margin: 0;
+    padding: 0;
+    font-family: Arial;
+    font-size: 14px;
+    background: linear-gradient(to bottom, #82c9ff, rgb(255, 143, 0));
+}
+
+footer {
+    color: white;
+}
+
+header, footer {
+    text-align: center;
+}
+
+header {
+    text-transform: uppercase;
+}
+
+header h1 {
+    margin-bottom: 0;
+}
+
+#wrapper {
+    width: 50%;
+    margin: 0 auto;
+}
+
+/*End main setting up*/
+
+.middle {
+    background: white;
+    padding-bottom: 0px; /*Точно столько же, сколько и радиус закругления, чтобы текст не вылез*/
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin-bottom: 40px;
+}
+
+.listHeader {
+    background: linear-gradient(to bottom, #5489c9, #365998);
+    color: white;
+    box-sizing: border-box;
+    padding-left: 20px;
+    height: 50px;
+    line-height: 50px;
+}
+
+/*Значек календаря генерируем прямо в CSS*/
+.listHeader:before {
+    content: '\1F4C6';
+    font-size: 20px;
+}
+
+/*По дефолту значки не видны, чуть ниже сделаем так, чтобы они были видны при наведении на родительский див*/
+.listHeaderCommands {
+    display: none;
+}
+
+/*Отступ от вертикальной линии*/
+.listHeaderCommands span:first-child {
+    border-right: 1px solid #ccc;
+    padding-right: 2px;
+}
+
+.listHeaderCommands span {
+    cursor: pointer;
+}
+
+/*Тут делаем видимыми кнопки редактирования и удаления, также прибиваем их к правому краю и делаем отступ*/
+.listHeader:hover .listHeaderCommands {
+    display: block;
+    float: right;
+    padding-right: 20px;
+}
+
+/*--------------------------End Закончили с верхней частью списка задач, перехходим к форме добавления новой задачи*/
+
+.listInsert {
+    background: linear-gradient(to bottom, #e0e0e0, #cfcfcf);
+    color: white;
+    box-sizing: border-box;
+    padding-left: 20px;
+    height: 50px;
+    line-height: 50px;
+}
+
+/*Значек календаря генерируем прямо в CSS*/
+.listInsert span {
+    position: absolute;
+}
+
+.listInsert span:before {
+    content: '+';
+    font-size: 40px;
+    font-weight: bold;
+    color: green;
+}
+
+.listInsert form {
+    float: right;
+    margin-right: 10px;
+    width: 90%;
+
+}
+
+.listInsert form input {
+    margin-right: 0;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 5px;
+    color: white;
+    outline: none;
+}
+
+.listInsert input[type="button"] {
+    background: linear-gradient(to bottom, #a2e1c2, #5d8d72);
+    width: 25%;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    border: none;
+}
+
+.listInsert input[type="text"] {
+    width: 75%;
+    color: black;
+    border: none;
+}
+
+.listInsert input:focus[type="text"] {
+    box-shadow: 0px 0px 7px red;
+}
+
+/*--------------------------End ListInsert styling*/
+.taskOptions {
+    display: none;
+    box-sizing: border-box;
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.taskName {
+    cursor: pointer;
+}
+
+li:hover .taskOptions {
+    display: inline-block;
+}
+
+ul {
+    margin: 0; /*Убираем верхнее и нижнее поле, которое по-умолчанию равно 1em*/
+    padding-left: 0; /*убираем левый отступ, равный 40px*/
+}
+
+li {
+    user-select:none;
+    line-height: 15px;
+    list-style-type: none;
+    padding: 10px;
+    display: block;
+    border-top: 1px solid #ccc;
+}
+
+/*Add ToDoList button*/
+.addToDoList{
+    text-align:center;
+    padding-bottom:15px;
+}
+
+.addToDoList button{
+    color:white;
+    background: linear-gradient(to bottom, #5489c9, #365998);
+    border:none;
+    padding:10px;
+    outline:none;
+    width:200px;
+    border-radius:7px;
+}
+
+.addToDoListSubmit{
+    box-sizing:border-box;
+    width:500px;
+    height:120px;
+    margin:15px auto;
+    padding:20px;
+    background: #fff84a;
+}
+
+.addToDoListSubmit input{
+    box-sizing:border-box;
+    border:0;
+    margin:0 auto;
+    display:block;
+    width:60%;
+    padding:12px;
+}
+
+/*Registration*/
+.container{
+    height:900px;
+}
+
+.container form{
+    padding:12px;
+    margin:20em auto;
+    width: 37%;
+    background: rgba(255, 255, 255, 0.53);
+    -webkit-box-shadow:  4px 2px 3px #000;
+    -moz-box-shadow:  4px 2px 3px #000;
+    box-shadow:  4px 2px 3px #000;
+}
+
+.conteiner form input{
+    margin-right: 0;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 5px;
+    color: white;
+    outline: none;
+}
+
+.conteiner input[type="button"] {
+    background: linear-gradient(to bottom, #a2e1c2, #5d8d72);
+    width: 25%;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    border: none;
+}
+
+.conteiner input[type="text"] {
+    width: 75%;
+    color: black;
+    border: none;
+}
+
+.conteiner input:focus[type="text"] {
+    box-shadow: 0px 0px 7px red;
+}
+
+.markDoneOrNot[checked] + label + .taskName{
+    text-decoration:line-through;
+}
+
+.datepicker{
+    float: right;
+    margin-right: 10px;
+    width: 75px;
+    text-align: center;
+    background-color: #3c63a2;
+    color: white;
+    border: none;
+    padding: 2px;
+}
+
+.moveTask{
+    float:right;
+}
+.editTask{
+    float:right;
+}
+.deleteTask{
+    float:right;
+}

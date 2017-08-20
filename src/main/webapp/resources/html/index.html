@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="ru">
+<head>
+    <title>My ToDo list</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../resources/css/style.css">
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+</head>
+<body>
+
+<script>
+
+    $.get("/projects", function(data){
+
+
+
+        var header = "<header><h1>Simple todo lists</h1><span>From Ruby Garage by Dyachenko Yaroslav</span></header>";
+        $('body').append(header);
+
+        var wrapper = '<div id="wrapper">';
+        data.map(function (project) {
+            //Перебираем проэкты
+            var section =  '<section class="middle" value="'+project.id+'">';
+
+            section += '<div class="list">';
+            section+='<div class="listHeader">';
+                section+='<span class="nameOfList" value="'+project.id+'">'+project.name+'</span>';
+                section+='<div class="listHeaderCommands">';
+
+                    section+='<span class="editListName" value="'+project.id+'">&#x270e;</span><span class="deleteList" value="'+project.id+'">&#x1f5d1;</span>';
+                section+='</div>';
+            section+='</div>';
+
+            section+='<div class="listInsert">';
+            section+='    <span></span>';
+                section+='<form class="createATask" value="'+project.id+'">';
+                    section+='<input name="name" type="text" placeholder="Start typing here to create a task"/><input class="addATask" type="button" value="Add task"/>';
+                    section+='<input type="hidden" name="project_id" value="'+project.id+'">';
+                section+='</form>';
+                section+='</div>';
+            section+='<div class="listTasks">';
+             section+=   '<form action="">';
+               section+= '<ul class="tasksList sortable" value="'+project.id+'"">';
+
+            //project.name
+
+
+
+            project.tasks.map(function (task) {
+                //Перебираем таски внутри проэкта
+
+                section+='<li class="task ui-state-default" id="task1" value="'+task.id+'">';
+
+                    if(task.status==0){
+                        section+='<input type="checkbox" id="checkbox1" class="markDoneOrNot"/>';
+                    }else{
+                        section+='<input type="checkbox" id="checkbox1" class="markDoneOrNot" checked/>';
+                    }
+
+
+
+
+                    section+='<label for="checkbox1"></label>';
+                    section+='<span class="taskName" value="'+task.id+'">'+task.name+'</span>';
+
+                    section+='<div class="taskOptions">';
+
+                        section+='<span class="deleteTask">&#x1f5d1;</span>';
+                        section+='<span class="editTask">&#x270e;</span>';
+                        section+='<span class="moveTask">&#x2195;</span>';
+
+                        if( task.deadline==null ){
+                            section+='<input class="datepicker" type="text"  value=""/>';
+                        }else{
+                            section+='<input class="datepicker" type="text"  value="'+task.deadline+'"/>';
+                        }
+
+                    section+='</div>';
+                section+='</li>';
+
+
+            });
+
+
+            section+= '</ul>';
+            section+=   '</form>';
+            section+='</div>';
+
+            section+="</div>";
+            section += "</section>";
+             wrapper += section;
+
+
+
+        });
+        wrapper += '</div>';
+        $('body').append(wrapper);
+
+
+
+        var preFooter= '<section class="addToDoList">';
+        preFooter+=' <button class="addToDoListButton">Add toDoList</button>';
+        preFooter+=' </section>';
+
+        var footer = "<footer>&copy;Ruby Garage 2017</footer>";
+        $('body').append(preFooter+footer);
+
+        //---------------
+        $(function() {
+            $( ".sortable" ).sortable({
+                placeholder: "ui-sortable-placeholder",
+                handle:'.moveTask'
+            });
+        });
+        $.each(data, function(index, project){
+
+
+            $('.sortable').sortable().bind('sortupdate', function() {
+                //Triggered when the user stopped sorting and the DOM position has changed.
+
+
+                var position = 1;
+                var currentUl = $('.sortable[value="'+project.id+'"]')[0];
+                $.each(currentUl.children, function (index, li) {
+
+
+                    li.parentNode;
+                    //Запрос на обновление позиции таски
+                    $.ajax({
+                        type: "PUT",
+                        url: "/tasks/position/" + li.children[2].parentNode.getAttribute("value"),
+                        data: {"position":position},
+
+                        success: function (data) {
+                            console.log("Successful changing of position");
+                        },
+                        error: function (xhr, thrownError) {
+                            var msg = '';
+                            if (xhr.status === 0) {
+                                msg = 'Not connect.\n Verify Network.';
+                            } else if (xhr.status == 404) {
+                                msg = 'Requested page not found. [404]';
+                            } else if (xhr.status == 500) {
+                                msg = 'Internal Server Error [500].';
+                            } else if (thrownError === 'parsererror') {
+                                msg = 'Requested JSON parse failed.';
+                            } else if (thrownError === 'timeout') {
+                                msg = 'Time out error.';
+                            } else if (thrownError === 'abort') {
+                                msg = 'Ajax request aborted.';
+                            } else {
+                                msg = 'Uncaught Error.\n' + xhr.responseText;
+                            }
+                            alert(msg);
+                        }
+                    });
+
+                    position++;
+                });
+            });
+            //---------------
+        });
+
+
+    });
+
+
+/*Обработка добавления нового проэкта*/
+    $("body").delegate(".addToDoListButton", "mouseup", function (e) {
+        var nameOfProject = prompt("Enter the name of your project");
+
+        if(nameOfProject.length>=2){
+            $.ajax({
+                type: "POST",
+                url: "/projects",
+                data:{'name':nameOfProject},
+
+                success: function (projectId) {
+
+                    var section =  '<section class="middle" value="'+projectId+'">';
+
+                    section += '<div class="list">';
+                    section+='<div class="listHeader">';
+                    section+='<span class="nameOfList" value="'+projectId+'">'+nameOfProject+'</span>';
+                    section+='<div class="listHeaderCommands">';
+                    section+='<span class="editListName" value="'+projectId+'">&#x270e;</span><span class="deleteList" value="'+projectId+'">&#x1f5d1;</span>';
+                    section+='</div>';
+                    section+='</div>';
+
+                    section+='<div class="listInsert">';
+                    section+='<span></span>';
+                    section+='<form class="createATask" value="'+projectId+'">';
+                    section+='<input name="name" type="text" placeholder="Start typing here to create a task"/><input class="addATask" type="button" value="Add task"/>';
+                    section+='<input type="hidden" name="project_id" value="'+projectId+'">';
+                    section+='</form>';
+                    section+='</div>';
+                    section+='<div class="listTasks">';
+                    section+=   '<form action="">';
+                    section+= '<ul class="tasksList sortable" value="'+projectId+'"">';
+
+                    //project.name
+
+                    section+= '</ul>';
+                    section+=   '</form>';
+                    section+='</div>';
+
+                    section+="</div>";
+                    section += "</section>";
+
+                    $('body #wrapper').append(section);
+
+                },
+                error: function (xhr, thrownError) {
+                    var msg = '';
+                    if (xhr.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (xhr.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (xhr.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (thrownError === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (thrownError === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (thrownError === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + xhr.responseText;
+                    }
+                    alert(msg);
+                }
+
+            });
+        }else{
+            alert("Your name of project has less than 2 signs")
+        }
+
+    });
+
+/*Обработка запроса на редактирование имени проэкта*/
+    $("body").delegate(".editListName","mouseup", function(e) {
+        var currentId = $(this).attr("value");
+        var new_name = prompt("Enter the new name of this list");
+        /*$.ajaxSetup({
+            headers: {
+                'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+            }
+        });*/
+        if(new_name.length>=2){
+
+            $.ajax({
+                type: "PUT",
+                url: "/projects/" + currentId,
+                data:{'new_name':new_name},
+
+                success: function (data) {
+                    $('.nameOfList[value = "' +currentId+'"]').text(new_name);
+                },
+                error: function (xhr, thrownError) {
+                    var msg = '';
+                    if (xhr.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (xhr.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (xhr.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (thrownError === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (thrownError === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (thrownError === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + xhr.responseText;
+                    }
+                    alert(msg);
+                }
+            });
+        }else{
+            alert("Your name of project has less than 2 signs");
+        }
+    });
+
+/*Удаления проэкта*/
+        $("body").delegate(".deleteList", "mouseup", function(e){
+            var currentId = $(this).attr("value");
+            /*$.ajaxSetup({
+             headers: {
+             'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+             }
+             });*/
+
+            if(confirm("Are you sure?")){
+                $.ajax({
+                    type: "DELETE",
+                    url: "/projects/" + currentId,
+
+                    success: function (data) {
+                        $('section[value = "'+currentId+'"]').remove();
+                    },
+                    error: function (xhr, thrownError) {
+                        var msg = '';
+                        if (xhr.status === 0) {
+                            msg = 'Not connect.\n Verify Network.';
+                        } else if (xhr.status == 404) {
+                            msg = 'Requested page not found. [404]';
+                        } else if (xhr.status == 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (thrownError === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (thrownError === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (thrownError === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + xhr.responseText;
+                        }
+                        alert(msg);
+                    }
+                });
+            }
+
+    });
+
+    $("body").delegate('form', 'submit', function(e){
+        e.preventDefault();
+        $(this).children()[1].click();
+    });
+
+//Добавление новой таски
+    $("body").delegate('input[type="button"]', "click", function (e) {
+        var currentId = $(this).parent().attr("value");/*project_id*/
+        var nameOfTask = $('form[value="'+currentId+'"] input[type="text"]')[0].value;/*name*/
+        var position_id = $('ul.tasksList[value="'+currentId+'"] li').size()+1;
+
+            if(nameOfTask.length>=2){
+                $.ajax({
+                    type: "POST",
+                    url: "/tasks",
+                    data: {name:nameOfTask, project_id:currentId, position_id:position_id},
+                    success: function (taskId) {
+                        $('body form[value="'+currentId+'"] input[type="text"]').val("");
+                        /*$(this).parent().reset();*/
+
+                        var newListItem = '<li class="task ui-state-default" id="task1" value="'+taskId+'">';
+
+                        newListItem+='<input type="checkbox" id="checkbox1" class="markDoneOrNot">';
+                        newListItem+='<label for="checkbox1"></label>';
+                        newListItem+='<span class="taskName" value="'+taskId+'">'+nameOfTask+'</span>';
+
+                        newListItem+='<div class="taskOptions">';
+
+                            newListItem+='<span class="deleteTask">&#x1f5d1;</span>';
+                            newListItem+='<span class="editTask">&#x270e;</span>';
+                            newListItem+='<span class="moveTask">&#x2195;</span>';
+
+                            newListItem+='<input class="datepicker" type="text"/>';
+                        newListItem+='</div>';
+                        newListItem+='</li>';
+
+                        $('body .tasksList[value="'+currentId+'"]').append(newListItem);
+
+                        $(function() {
+                            $( ".sortable" ).sortable({
+                                placeholder: "ui-sortable-placeholder"
+                            });
+                        });
+                        $('.sortable').sortable().off('sortupdate');
+                        //Тут мы каждый раз привязываемся на событие sortupdate и если не обновляли страничку, а добавили например 10 новых тасок, то это событие привяжется 10 раз и при одном единственном перетаскивании будет выполнять этот метод 10 раз, поэтому в строчке сверху мы сначала отписываемся от всех подписок на событие sortupdate, а затем вешаем наше событие, что дает нам гарантию, что оно одно
+                        $('.sortable').sortable().bind('sortupdate', function() {
+                            //Triggered when the user stopped sorting and the DOM position has changed.
+
+                            var position = 1;
+                            var currentUl = $('.sortable[value="'+currentId+'"]')[0];
+                            $.each(currentUl.children, function (index, li) {
+
+                                li.parentNode;
+                                //Запрос на обновление позиции таски
+                                $.ajax({
+                                    type: "PUT",
+                                    url: "/tasks/position/" + li.children[2].parentNode.getAttribute("value"),
+                                    data: {"position":position},
+
+                                    success: function (data) {
+                                        console.log("Successful changing of position");
+                                    },
+                                    error: function (xhr, thrownError) {
+                                        var msg = '';
+                                        if (xhr.status === 0) {
+                                            msg = 'Not connect.\n Verify Network.';
+                                        } else if (xhr.status == 404) {
+                                            msg = 'Requested page not found. [404]';
+                                        } else if (xhr.status == 500) {
+                                            msg = 'Internal Server Error [500].';
+                                        } else if (thrownError === 'parsererror') {
+                                            msg = 'Requested JSON parse failed.';
+                                        } else if (thrownError === 'timeout') {
+                                            msg = 'Time out error.';
+                                        } else if (thrownError === 'abort') {
+                                            msg = 'Ajax request aborted.';
+                                        } else {
+                                            msg = 'Uncaught Error.\n' + xhr.responseText;
+                                        }
+                                        alert(msg);
+                                    }
+                                });
+
+                                position++;
+                            });
+                        });
+                    },
+                    error: function (xhr, thrownError) {
+                        var msg = '';
+                        if (xhr.status === 0) {
+                            msg = 'Not connect.\n Verify Network.';
+                        } else if (xhr.status == 404) {
+                            msg = 'Requested page not found. [404]';
+                        } else if (xhr.status == 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (thrownError === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (thrownError === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (thrownError === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + xhr.responseText;
+                        }
+                        alert(msg);
+                    }
+                });
+            }else{
+                alert("Your name of task has less than 2 signs");
+                $('body form[value="'+currentId+'"] input[type="text"]').val("");
+            }
+
+    });
+
+/*Удаление конкретной таски*/
+    $("body").delegate(".deleteTask", "mouseup", function(e){
+        var currentId = $(this).parent().parent().attr("value");
+        /*$.ajaxSetup({
+         headers: {
+         'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+         }
+         });*/
+
+        if(confirm("Are you sure?")){
+            $.ajax({
+                type: "DELETE",
+                url: "/tasks/" + currentId,
+
+                success: function (data) {
+                    $('.task[value = "'+currentId+'"]').remove();
+                },
+                error: function (xhr, thrownError) {
+                    var msg = '';
+                    if (xhr.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (xhr.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (xhr.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (thrownError === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (thrownError === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (thrownError === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + xhr.responseText;
+                    }
+                    alert(msg);
+                }
+            });
+        }
+
+    });
+/*Редактирование конкретной таски*/
+    $("body").delegate(".editTask", "mouseup", function(e){
+        var currentId = $(this).parent().parent().attr("value");
+        var new_name = prompt("Enter the new name of this task");
+
+        if(new_name.length>=2){
+            $.ajax({
+                type: "PUT",
+                url: "/tasks/" + currentId,
+                data: {"new_name":new_name},
+
+                success: function (data) {
+                    $('.taskName[value = "'+currentId+'"]').text(new_name);
+                },
+                error: function (xhr, thrownError) {
+                    var msg = '';
+                    if (xhr.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (xhr.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (xhr.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (thrownError === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (thrownError === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (thrownError === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + xhr.responseText;
+                    }
+                    alert(msg);
+                }
+            });
+        }else{
+            alert("Your name of task has less than 2 signs")
+        }
+
+    });
+
+//Отметить таску как выполненную (то есть визуально перечеркнуть)
+
+    $("body").delegate(".markDoneOrNot", "mouseup", function(e){
+        //id таски
+        var currentId = $(this).parent().attr("value");
+
+        $(this).checked = !$(this).checked;
+        if(this.checked){
+            $(this).parent().children()[2].style.textDecoration = "none";
+        }else{
+            $(this).parent().children()[2].style.textDecoration = "line-through";
+
+        }
+
+        /*var currentInput = $('.markDoneOrNot')[0].parentNode.children[2].style.textDecoration = "line-through"*/
+        $.ajax({
+            type: "PUT",
+            url: "/tasks/" +currentId+ "/complete",
+
+            success: function (data) {
+                console.log("success");
+            },
+            error: function (xhr, thrownError) {
+                var msg = '';
+                if (xhr.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (xhr.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (xhr.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (thrownError === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (thrownError === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (thrownError === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + xhr.responseText;
+                }
+                alert(msg);
+            }
+        });
+    });
+
+    //Deadline of task
+
+
+
+</script>
+
+
+<!--Мой основной скрипт-->
+<script>
+    //Обработка запроса для редактирования названия целого листа
+    $('.editListName').mouseup(function () {
+        $(".nameOfList").text(prompt("Enter the new name of this list"));
+        //тут пишем запрос на сервер для изменения имени листа
+    });
+
+    //Обработка запроса для удаление  целого листа
+    $('.deleteList').mouseup(function () {
+        $(".list").remove();
+        //тут пишем запрос на сервер для удаления листа
+    });
+</script>
+
+<script>
+    $('body').delegate(".sortable", "mouseover", function(e){
+        $(".datepicker").datepicker({
+            monthNames:
+            ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август",
+                "Сентябрь","Октябрь","Ноябрь","Декабрь"],
+            dayNamesMin: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+
+            onSelect : function(dateText, inst){
+                    //taskId
+                    var currentId = $(this).parent().parent().attr("value");
+
+                    /*$(this).checked = !$(this).checked;
+                     if(this.checked){
+                     $(this).parent().children()[2].style.textDecoration = "none";
+                     console.log($(this).parent().children()[2].style.textDecoration);
+                     }else{
+                     $(this).parent().children()[2].style.textDecoration = "line-through";
+
+                     console.log($(this).parent().children()[2].style.textDecoration);
+                     }*/
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "/tasks/" +currentId+ "/expired",
+                        data: {date:dateText},
+                        success: function (data) {
+                            console.log("success");
+                        },
+                        error: function (xhr, thrownError) {
+                            var msg = '';
+                            if (xhr.status === 0) {
+                                msg = 'Not connect.\n Verify Network.';
+                            } else if (xhr.status == 404) {
+                                msg = 'Requested page not found. [404]';
+                            } else if (xhr.status == 500) {
+                                msg = 'Internal Server Error [500].';
+                            } else if (thrownError === 'parsererror') {
+                                msg = 'Requested JSON parse failed.';
+                            } else if (thrownError === 'timeout') {
+                                msg = 'Time out error.';
+                            } else if (thrownError === 'abort') {
+                                msg = 'Ajax request aborted.';
+                            } else {
+                                msg = 'Uncaught Error.\n' + xhr.responseText;
+                            }
+                            alert(msg);
+                        }
+                    });
+
+
+
+
+            }});
+    });
+
+</script>
+</body>
+</html>
