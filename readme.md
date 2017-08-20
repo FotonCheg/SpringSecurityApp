@@ -1,5 +1,5 @@
 ## ToDo List by Yaroslav Dyachenko
-Spring Framework, Spring Data, Hibernate, H2, Spring Security, H2, java script, jQuery, AJAX
+Spring Framework, Spring Data, Hibernate, H2, Spring Security, H2, java script, jQuery, AJAX etc. JUnit, Spring-test for testing.
 
 ## Project on herokuapp.com:
 dyachenkoytodolist.herokuapp.com
