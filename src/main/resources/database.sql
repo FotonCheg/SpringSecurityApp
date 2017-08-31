@@ -48,7 +48,7 @@ CREATE TABLE tasks(
 );
 
 -- Insert data Стандартные данные при запуске
-INSERT INTO users (id, username, password) VALUES (1, 'Yaroslav', '$2a$11$sbdl/QdAA7hsLuF6GPiUKuEciZ2JONmNEqOKWvuHq.movfQoy6P/e');
+INSERT INTO users (id, username, password) VALUES (1, 'Yaroslav', '$2a$11$2LZT00FYoc9NKlGX1GGT8.nlskMlPaaQ6uIknQT6bt9QRexa.3i3m');
 
 INSERT INTO roles (id, name) VALUES (1, 'ROLE_USER');
 INSERT INTO roles (id, name) VALUES (2, 'ROLE_ADMIN');
