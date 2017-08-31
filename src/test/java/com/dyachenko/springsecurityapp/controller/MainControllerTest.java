@@ -67,7 +67,7 @@ public class MainControllerTest {
         mainController.setUserDao(userDaoMock);
 
         mockMvc = MockMvcBuilders.standaloneSetup(mainController).build();
-        securityService.autoLogin("Yaroslav", "A0b7p0b7r0f7");
+        securityService.autoLogin("Yaroslav", "qwertyui");
     }
 
     @Test
